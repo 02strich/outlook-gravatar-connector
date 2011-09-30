@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\Outlook\SocialConnector]
+"DebugProviders"=dword:00000001
+"ShowDebugButtons"=dword:00000001
