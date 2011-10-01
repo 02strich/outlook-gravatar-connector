@@ -94,7 +94,7 @@ namespace Gravatar.NET {
         private static void SetExistsMethodResponse(GravatarServiceResponse response) {
             response.MultipleOperationResponse = (
                 from par in response.ResponseParameters
-                select par.BooleanValue
+                select Convert.ToBoolean(par.IntegerValue)
             ).ToArray();
         }
     }
