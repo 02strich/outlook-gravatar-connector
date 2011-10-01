@@ -87,10 +87,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Readme.txt" />
     <Content Include="Other Stuff\OutlookSocialProvider.dll" />
     <Content Include="Resources\Logo.jpg" />
-    <None Include="Resources\testprovider.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gravatar.NET\Gravatar.NET.csproj">

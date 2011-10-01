@@ -66,12 +66,5 @@ namespace GravatarOSC.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-        
-        internal static System.Drawing.Bitmap testprovider {
-            get {
-                object obj = ResourceManager.GetObject("testprovider", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
     }
 }

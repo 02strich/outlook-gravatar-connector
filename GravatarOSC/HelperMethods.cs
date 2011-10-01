@@ -8,6 +8,7 @@ namespace GravatarOSC
     class HelperMethods
     {
         //OSC Errors
+        // ReSharper disable InconsistentNaming
         public const int OSC_E_FAIL             = unchecked((int)0x80004005);   // General failure error
         public const int OSC_E_INTERNAL_ERROR   = unchecked((int)0x80041400);   // An internal error has occurred due to an invalid operation
         public const int OSC_E_INVALIDARG       = unchecked((int)0x80070057);   // Invalid argument error
@@ -19,6 +20,7 @@ namespace GravatarOSC
         public const int OSC_E_OUT_OF_MEMORY    = unchecked((int)0x8007000E);   // Out of memory error
         public const int OSC_E_PERMISSION_DENIED = unchecked((int)0x80041403);  // Permission for the resource is denied by the OSC provider
         public const int OSC_E_VERSION          = unchecked((int)0x80041401);   // The provider does not support this version of OSC provider extensibility
+        // ReSharper restore InconsistentNaming
 
         public static string SerializeObjectToString(object o)
         {
@@ -35,23 +37,16 @@ namespace GravatarOSC
         }
 
         public static int GetTrueIndex(bool[] array) {
-            for (int i = 0; i < array.Length; i++)
+            for (var i = 0; i < array.Length; i++)
                 if (array[i])
                     return i;
 
             return -1;
         }
 
-        public static byte[] GetProviderJpeg()
-        {
-            /*var img = Properties.Resources.Logo;
-            var imgMemoryStream = new MemoryStream();
-            img.Save(imgMemoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
-            return imgMemoryStream.GetBuffer();*/
-
+        public static byte[] GetProviderJpeg() {
             var ic = new ImageConverter();
-            //var b = Properties.Resources.Logo;
-            var b = Properties.Resources.testprovider;
+            var b = Properties.Resources.Logo;
             return (byte[])ic.ConvertTo(b, typeof(byte[]));
         }
     }
