@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Gravatar.NET;
 using OutlookSocialProvider;
 
 namespace GravatarOSC
@@ -40,7 +41,7 @@ namespace GravatarOSC
 
         #region Person/People
         /// <summary>
-        /// ???
+        /// not yet clear, what this is used for
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
@@ -74,15 +75,27 @@ namespace GravatarOSC
                 if(index == -1) continue;
 
                 // get gravatar profile
-                _provider.GravatarService.
-
-                resultList.Add(new OSCSchema.personType {
-                    userID = personAddress.hashedAddress[index],
-                    pictureUrl = String.Format("http://www.gravatar.com/avatar/{0}", personAddress.hashedAddress[index]),
+                var profile = GravatarService.GetGravatarProfile(personAddress.hashedAddress[index], true);
+                if (profile == null)
+                    resultList.Add(new OSCSchema.personType {
+                        userID = personAddress.hashedAddress[index],
+                        pictureUrl = GravatarService.GetGravatarUrlForAddress(personAddress.hashedAddress[index], true),
                     
-                    index = personAddress.index,
-                    indexSpecified = true
-                });
+                        index = personAddress.index,
+                        indexSpecified = true
+                    });
+                else
+                    resultList.Add(new OSCSchema.personType {
+                        userID = personAddress.hashedAddress[index],
+                        pictureUrl = profile.ThumbnailUrl,
+                        city = profile.CurrentLocation,
+                        firstName = profile.GivenName,
+                        lastName = profile.FamilyName,
+                        nickname = profile.PreferredUsername,
+
+                        index = personAddress.index,
+                        indexSpecified =true
+                    });
             }
 
 
