@@ -373,13 +373,18 @@ namespace Gravatar.NET
 		/// <param name="alreadyHashed">Whether the supplied address is already hashed</param>
 		/// <returns>The Gravatar profile</returns>
 		public static GravatarProfile GetGravatarProfile(string address, bool alreadyHashed=false) {
-			var profileUrl = String.Format("{0}/{1}.xml", GravatarProfileUrlBase, alreadyHashed ? address : HashEmailAddress(address));
-			
-			var webRequest = (HttpWebRequest) WebRequest.Create(profileUrl);
-			webRequest.ContentType = "text/xml";
-			var webResponse = webRequest.GetResponse();
-			
-			return new GravatarProfile(webResponse);
+			try {
+				var profileUrl = String.Format("{0}/{1}.xml", GravatarProfileUrlBase, alreadyHashed ? address : HashEmailAddress(address));
+
+				var webRequest = (HttpWebRequest)WebRequest.Create(profileUrl);
+				webRequest.ContentType = "text/xml";
+				var webResponse = webRequest.GetResponse();
+
+				return new GravatarProfile(webResponse);
+			}
+			catch (WebException) {
+				return null;
+			}
 		}
 
 		#endregion
