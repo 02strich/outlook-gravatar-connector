@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using Gravatar.NET;
 using OutlookSocialProvider;
 
 namespace GravatarOSC
 {
     class OSCSession : ISocialSession, ISocialSession2 {
+        private GravatarService _gravatarService = null;
         private readonly OSCProvider _provider;
-        private readonly string _loggedOnUser;
+        private string _loggedOnUser;
 
         public OSCSession(OSCProvider provider, bool autoConfigured = false) {
             _provider = provider;
@@ -52,7 +54,7 @@ namespace GravatarOSC
         }
 
         /// <summary>
-        /// Should return a list of friends, for now nobody is our friend
+        /// Should return information about the addresses
         /// </summary>
         /// <param name="hashedAddresses"></param>
         /// <returns></returns>
@@ -66,36 +68,39 @@ namespace GravatarOSC
             var resultList = new List<OSCSchema.personType>();
             foreach (var personAddress in addresses.personAddresses) {
                 if (personAddress.hashedAddress.Length == 0) continue;
-                
-                // find gravatar for hashed addresses
-                var response = _provider.GravatarService.Exists(personAddress.hashedAddress, true);
-                var index = HelperMethods.GetTrueIndex(response.MultipleOperationResponse);
-                
-                // no gravatar found
-                if(index == -1) continue;
+                try {
+                    // find gravatar for hashed addresses
+                    var response = _gravatarService.Exists(personAddress.hashedAddress, true);
+                    var index = HelperMethods.GetTrueIndex(response.MultipleOperationResponse);
 
-                // get gravatar profile
-                var profile = GravatarService.GetGravatarProfile(personAddress.hashedAddress[index], true);
-                if (profile == null)
-                    resultList.Add(new OSCSchema.personType {
-                        userID = personAddress.hashedAddress[index],
-                        pictureUrl = GravatarService.GetGravatarUrlForAddress(personAddress.hashedAddress[index], true),
-                    
-                        index = personAddress.index,
-                        indexSpecified = true
-                    });
-                else
-                    resultList.Add(new OSCSchema.personType {
-                        userID = personAddress.hashedAddress[index],
-                        pictureUrl = profile.ThumbnailUrl,
-                        city = profile.CurrentLocation,
-                        firstName = profile.GivenName,
-                        lastName = profile.FamilyName,
-                        nickname = profile.PreferredUsername,
+                    // no gravatar found
+                    if (index == -1) continue;
 
-                        index = personAddress.index,
-                        indexSpecified =true
-                    });
+                    // get gravatar profile
+                    var profile = GravatarService.GetGravatarProfile(personAddress.hashedAddress[index], true);
+                    if (profile == null)
+                        resultList.Add(new OSCSchema.personType {
+                            userID = personAddress.hashedAddress[index],
+                            pictureUrl = GravatarService.GetGravatarUrlForAddress(personAddress.hashedAddress[index], true),
+
+                            index = personAddress.index,
+                            indexSpecified = true
+                        });
+                    else
+                        resultList.Add(new OSCSchema.personType {
+                            userID = personAddress.hashedAddress[index],
+                            pictureUrl = profile.ThumbnailUrl,
+                            city = profile.CurrentLocation,
+                            firstName = profile.GivenName,
+                            lastName = profile.FamilyName,
+                            nickname = profile.PreferredUsername,
+
+                            index = personAddress.index,
+                            indexSpecified = true
+                        });
+                } catch(Exception e) {
+                    Debug.WriteLine(e.ToString());
+                }
             }
 
 
@@ -153,14 +158,14 @@ namespace GravatarOSC
 
         #region Logon
         /// <summary>
-        /// We do fake auto configure and therefore never call this
+        /// We do cached logon and therefore never call this
         /// </summary>
         public void Logon(string username, string password) {
             Debug.WriteLine("Logon called with username: " + username + ", password: " + password);
         }
 
         /// <summary>
-        /// We do fake auto configure and therefore never call this
+        /// We do cached windows logon and therefore never call this
         /// </summary>
         public void LogonWeb(string connectIn, out string connectOut) {
             if (!string.IsNullOrEmpty(connectIn))
@@ -168,11 +173,30 @@ namespace GravatarOSC
             connectOut = string.Empty;
         }
 
+        /// <summary>
+        /// Logon to Gravatar service and safe Base64-encoded username/password combination in connectOut
+        /// </summary>
+        /// <param name="connectIn">If recurring login, information from last connectOut (should contain encoded password)</param>
+        /// <param name="userName">The username supplied</param>
+        /// <param name="password">If first login, the password supplied by the user</param>
+        /// <param name="connectOut">Some value to cache, which allows us later to logon again (without the password)</param>
         public void LogonCached(string connectIn, string userName, string password, out string connectOut) {
-            if (!string.IsNullOrEmpty(connectIn))
+            string realUsername = userName;
+            string realPassword = password;
+
+            if (!string.IsNullOrEmpty(connectIn)) {
                 Debug.WriteLine("LogonCached called with connectIn: " + connectIn);
-            
-            connectOut = string.Empty;
+                var parts = connectIn.Split(':');
+                realUsername = Encoding.UTF8.GetString(Convert.FromBase64String(parts[0]));
+                realPassword = Encoding.UTF8.GetString(Convert.FromBase64String(parts[1]));
+                connectOut = connectIn;
+            } else {
+                Debug.WriteLine("LogonCached called with username='" + userName + "' and password='" + password + "'");
+                connectOut = String.Format("{0}:{1}", Convert.ToBase64String(Encoding.UTF8.GetBytes(userName)), Convert.ToBase64String(Encoding.UTF8.GetBytes(password)));
+            }
+
+            _gravatarService = new GravatarService(realUsername, realPassword);
+            _loggedOnUser = realUsername;
         }
         
         public ISocialProfile GetLoggedOnUser() {

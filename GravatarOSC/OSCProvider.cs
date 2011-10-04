@@ -12,8 +12,6 @@ namespace GravatarOSC
         private const string ProviderVersion = "1.1";
         private const string ProviderGuidString = "{C8A61225-F18B-4AB9-ADCB-3ADDDA709AA7}";
 
-        public Gravatar.NET.GravatarService GravatarService = null;
-
         public string GetCapabilities() {
             
             var capabilities = new OSCSchema.capabilities {
@@ -28,15 +26,15 @@ namespace GravatarOSC
                 // OSC 1.1 capabilities
                 dynamicActivitiesLookupEx = false,
                 dynamicActivitiesLookupExSpecified = true,
-                hideHyperlinks = true,
+                hideHyperlinks = false,
                 hideHyperlinksSpecified = true,
-                supportsAutoConfigure = true,
+                supportsAutoConfigure = false,
                 supportsAutoConfigureSpecified = true,
                 dynamicContactsLookup = true,
                 dynamicContactsLookupSpecified = true,
-                useLogonCached = false,
+                useLogonCached = true,
                 useLogonCachedSpecified = true,
-                hideRememberMyPassword = true,
+                hideRememberMyPassword = false,
                 hideRememberMyPasswordSpecified = true,
                 hashFunction = "MD5"
             };
@@ -78,8 +76,6 @@ namespace GravatarOSC
         /// </summary>
         public void Load(string socialProviderInterfaceVersion, string languageTag) {
             Debug.WriteLine("Load called with socialProviderInterfaceVersion=" + socialProviderInterfaceVersion + " and languageTag=" + languageTag);
-
-            GravatarService = new Gravatar.NET.GravatarService("EMAIL", "PASSWORD");
         }
 
         public byte[] SocialNetworkIcon {
