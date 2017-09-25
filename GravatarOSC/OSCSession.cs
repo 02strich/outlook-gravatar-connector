@@ -15,8 +15,9 @@ namespace GravatarOSC
         public OSCSession(OSCProvider provider, bool autoConfigured = false) {
             _provider = provider;
 
-            if(autoConfigured)
+            if (autoConfigured) {
                 _loggedOnUser = "Local User";
+            }
         }
 
         public string GetActivities(string[] emailAddresses, DateTime startTime) {
@@ -71,6 +72,10 @@ namespace GravatarOSC
                 try {
                     // find gravatar for hashed addresses
                     var response = _gravatarService.Exists(personAddress.hashedAddress, true);
+                    if (response.IsError) {
+                        Debug.WriteLine("Encountered error when calling gravatar: " + response.ErrorCode);
+                        continue;
+                    }
                     var index = HelperMethods.GetTrueIndex(response.MultipleOperationResponse);
 
                     // no gravatar found
@@ -196,6 +201,12 @@ namespace GravatarOSC
             }
 
             _gravatarService = new GravatarService(realUsername, realPassword);
+            var response = _gravatarService.Test();
+            if (response.IsError) {
+                Debug.WriteLine("Failed to login to Gravatar");
+                throw new Exception();
+            }
+
             _loggedOnUser = realUsername;
         }
         

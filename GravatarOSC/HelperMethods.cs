@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Xml.Serialization;
 using System.IO;
@@ -37,6 +38,11 @@ namespace GravatarOSC
         }
 
         public static int GetTrueIndex(bool[] array) {
+            if (array == null) {
+                Debug.WriteLine("HelperMethods:GetTrueIndex: got empty array");
+                return -1;
+            }
+                
             for (var i = 0; i < array.Length; i++)
                 if (array[i])
                     return i;

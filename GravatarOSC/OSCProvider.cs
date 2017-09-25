@@ -39,9 +39,7 @@ namespace GravatarOSC
                 hashFunction = "MD5"
             };
 
-            var result = HelperMethods.SerializeObjectToString(capabilities);
-            Debug.WriteLine(result);
-            return result;
+            return HelperMethods.SerializeObjectToString(capabilities);
         }
 
         /// <summary>
